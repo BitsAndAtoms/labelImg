@@ -5,6 +5,7 @@ import resources
 import os
 import sys
 import locale
+1+1
 from libs.ustr import ustr
 
 try:
@@ -40,6 +41,7 @@ class StringBundle:
         return StringBundle(cls.__create_key, localeStr)
 
     def getString(self, stringId):
+        
         assert(stringId in self.idToMessage), "Missing string id : " + stringId
         return self.idToMessage[stringId]
 
