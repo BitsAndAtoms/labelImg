@@ -7,7 +7,8 @@ import platform
 import re
 import sys
 import subprocess
-
+import gui_python_hook
+import pdb
 from functools import partial
 from collections import defaultdict
 
@@ -171,9 +172,25 @@ class MainWindow(QMainWindow, WindowMixin):
         self.canvas.zoomRequest.connect(self.zoomRequest)
         self.canvas.setDrawingShapeToSquare(settings.get(SETTING_DRAW_SQUARE, False))
 
+
+        self.canvas2 = Canvas(parent=self)
+        self.canvas2.zoomRequest.connect(self.zoomRequest)
+        self.canvas2.setDrawingShapeToSquare(settings.get(SETTING_DRAW_SQUARE, False))
+
+
         scroll = QScrollArea()
         scroll.setWidget(self.canvas)
         scroll.setWidgetResizable(True)
+        self.scrollBars = {
+            Qt.Vertical: scroll.verticalScrollBar(),
+            Qt.Horizontal: scroll.horizontalScrollBar()
+        }
+        self.scrollArea = scroll
+        self.canvas.scrollRequest.connect(self.scrollRequest)
+
+        scroll2 = QScrollArea()
+        scroll2.setWidget(self.canvas2)
+        scroll2.setWidgetResizable(True)
         self.scrollBars = {
             Qt.Vertical: scroll.verticalScrollBar(),
             Qt.Horizontal: scroll.horizontalScrollBar()
@@ -185,8 +202,19 @@ class MainWindow(QMainWindow, WindowMixin):
         self.canvas.shapeMoved.connect(self.setDirty)
         self.canvas.selectionChanged.connect(self.shapeSelectionChanged)
         self.canvas.drawingPolygon.connect(self.toggleDrawingSensitive)
-
-        self.setCentralWidget(scroll)
+        #pdb.set_trace()
+        vbox = QVBoxLayout()
+        textbrowser = QTextBrowser()
+        lineedit = QLineEdit()
+        btn = QPushButton("QUIT")
+        central_widget = QWidget()
+        central_widget.setLayout(vbox)
+        
+        vbox.addWidget(scroll)
+        vbox.addWidget(scroll2)
+        self.setCentralWidget(central_widget)
+        #self.setCentralWidget(scroll)
+        
         self.addDockWidget(Qt.RightDockWidgetArea, self.dock)
         self.addDockWidget(Qt.RightDockWidgetArea, self.filedock)
         self.filedock.setFeatures(QDockWidget.DockWidgetFloatable)
