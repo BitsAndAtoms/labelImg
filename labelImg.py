@@ -985,10 +985,13 @@ class MainWindow(QMainWindow, WindowMixin):
         for item, shape in self.itemsToShapes.items():
             item.setCheckState(Qt.Checked if value else Qt.Unchecked)
 
-    def loadFile(self, filePath=None):
+    def loadFile(self, filePath=None,newCanvas=None):
         """Load the specified file, or the last opened file if None."""
+        if newCanvas is None:
+           newCanvas = self.canvas
+        
         self.resetState()
-        self.canvas.setEnabled(False)
+        newCanvas.setEnabled(False)
         if filePath is None:
             filePath = self.settings.get(SETTING_FILENAME)
 
@@ -1017,13 +1020,13 @@ class MainWindow(QMainWindow, WindowMixin):
                 self.imageData = self.labelFile.imageData
                 self.lineColor = QColor(*self.labelFile.lineColor)
                 self.fillColor = QColor(*self.labelFile.fillColor)
-                self.canvas.verified = self.labelFile.verified
+                newCanvas.verified = self.labelFile.verified
             else:
                 # Load image:
                 # read data first and store for saving into label file.
                 self.imageData = read(unicodeFilePath, None)
                 self.labelFile = None
-                self.canvas.verified = False
+                newCanvas.verified = False
 
             image = QImage.fromData(self.imageData)
             if image.isNull():
@@ -1034,13 +1037,13 @@ class MainWindow(QMainWindow, WindowMixin):
             self.status("Loaded %s" % os.path.basename(unicodeFilePath))
             self.image = image
             self.filePath = unicodeFilePath
-            self.canvas.loadPixmap(QPixmap.fromImage(image))
+            newCanvas.loadPixmap(QPixmap.fromImage(image))
             if self.labelFile:
                 self.loadLabels(self.labelFile.shapes)
             self.setClean()
-            self.canvas.setEnabled(True)
+            newCanvas.setEnabled(True)
             self.adjustScale(initial=True)
-            self.paintCanvas()
+            self.paintCanvas(newCanvas)
             self.addRecentFile(self.filePath)
             self.toggleActions(True)
 
@@ -1074,7 +1077,7 @@ class MainWindow(QMainWindow, WindowMixin):
                 self.labelList.setCurrentItem(self.labelList.item(self.labelList.count()-1))
                 self.labelList.item(self.labelList.count()-1).setSelected(True)
 
-            self.canvas.setFocus(True)
+            newCanvas.setFocus(True)
             return True
         return False
 
@@ -1084,11 +1087,12 @@ class MainWindow(QMainWindow, WindowMixin):
             self.adjustScale()
         super(MainWindow, self).resizeEvent(event)
 
-    def paintCanvas(self):
-        assert not self.image.isNull(), "cannot paint null image"
-        self.canvas.scale = 0.01 * self.zoomWidget.value()
-        self.canvas.adjustSize()
-        self.canvas.update()
+    def paintCanvas(self,newCanvas):
+        if type(newCanvas) is Canvas:
+         assert not self.image.isNull(), "cannot paint null image"
+         newCanvas.scale = 0.01 * self.zoomWidget.value()
+         newCanvas.adjustSize()
+         newCanvas.update()
 
     def adjustScale(self, initial=False):
         value = self.scalers[self.FIT_WINDOW if initial else self.zoomMode]()
@@ -1238,7 +1242,7 @@ class MainWindow(QMainWindow, WindowMixin):
                     return
 
             self.canvas.verified = self.labelFile.verified
-            self.paintCanvas()
+            self.paintCanvas(self.canvas)
             self.saveFile()
 
     def openPrevImg(self, _value=False):
