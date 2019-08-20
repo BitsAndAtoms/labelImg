@@ -31,7 +31,7 @@ class Detect():
     def __init__(self, filename):
         self.filename = filename
         self.img=None
-        
+        self.thresIm = None;
         self.objectCollection = []
         
     def detectedImage(self):
@@ -61,11 +61,10 @@ class Detect():
          for i in range(0, nb_components):
             if max_size >= sizes[i] >= min_size :
                img2[output == i + 1] = 255
-             
-               self.objectCollection.append(np.array([stats[i, cv2.CC_STAT_LEFT],
-                        stats[i, cv2.CC_STAT_TOP], 
-                        stats[i, cv2.CC_STAT_WIDTH], 
-                        stats[i, cv2.CC_STAT_HEIGHT]]))
+               self.objectCollection.append(np.array([stats[i+1, cv2.CC_STAT_LEFT],
+                        stats[i+1, cv2.CC_STAT_TOP], 
+                        stats[i+1, cv2.CC_STAT_WIDTH], 
+                        stats[i+1, cv2.CC_STAT_HEIGHT]]))
          #QImage newImage = img2
          #np
          
@@ -77,6 +76,7 @@ class Detect():
          bytesPerLine =  3*N
          cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB, self.img)   
          color_img = cv2.cvtColor(np.uint8(img2), cv2.COLOR_GRAY2RGB)
+         self.threshIm = color_img
          #return QImage(self.img, N, M, bytesPerLine,QImage.Format_RGB888)                   
          return QImage(color_img.data, N, M, bytesPerLine,QImage.Format_RGB888)
          #return cv2.imread(self.filename)  
@@ -87,12 +87,20 @@ class Detect():
     def returnSingleObject(self,index):
         
        
-        boundedImg = self.img[self.objectCollection[index][1]:self.objectCollection[index][1]+self.objectCollection[index][3] , self.objectCollection[index][0]:self.objectCollection[0][0]+self.objectCollection[index][2], :]
+        boundedImg = self.img[self.objectCollection[index][1]:self.objectCollection[index][1]+self.objectCollection[index][3] , self.objectCollection[index][0]:self.objectCollection[index][0]+self.objectCollection[index][2], :]
         
         color_img2 = cv2.cvtColor(boundedImg, cv2.COLOR_BGR2RGB)   
         print(len(self.objectCollection))
         return QImage( color_img2.data, boundedImg.shape[1], boundedImg.shape[0], 3*boundedImg.shape[1], QImage.Format_RGB888)
         #return boundedImg
+        
+        
+    def showImageWithHighlight(self,index):
+        
+        threshImCrop = cv2.rectangle(self.threshIm , (self.objectCollection[index][0], self.objectCollection[index][1]), (self.objectCollection[index][0]+self.objectCollection[index][2]-1 , self.objectCollection[index][1]+self.objectCollection[index][3]-1), (255,0,0), 3)
+        #return threshImCrop
+        return QImage(threshImCrop.data, threshImCrop.shape[1], threshImCrop.shape[0], 3*threshImCrop.shape[1], QImage.Format_RGB888)
+
 #imgFile = cv2.imread(r"C:\Users\Sid\Desktop\pythonLearn\guiml\demo\demo.jpg")
 
 #cv2.imshow('dst_rt', imgFile)
@@ -104,13 +112,19 @@ class Detect():
 # newDetect = Detect(r'C:\Users\Sid\Desktop\pythonLearn\guiml\demo\a.jpg')    
 # cv2.imshow( "Display window", newDetect.detectedImage())
 # cv2.waitKey(3000)
-# cv2.destroyAllWindows()
 # =============================================================================
-# for i in range(0, 20):
-#     newDetect = Detect(r'C:\Users\Sid\Desktop\pythonLearn\guiml\demo\a.jpg')    
-#     newDetect.detectedImage()
-#     cv2.imshow( "Display window", newDetect.returnSingleObject(i))
-#     cv2.waitKey(3000)
-#     cv2.destroyAllWindows()
+# # cv2.destroyAllWindows()
 # 
-# =============================================================================
+# for i in range(0, 20):
+#      newDetect = Detect(r'C:\Users\Sid\Desktop\pythonLearn\guiml\demo\a.jpg')    
+#      newDetect.detectedImage()
+#      cv2.imshow( "Display window", newDetect.returnSingleObject(i))
+#      cv2.waitKey(3000)
+#      cv2.destroyAllWindows()
+# 
+# for i in range(0, 20):
+#       newDetect = Detect(r'C:\Users\Sid\Desktop\pythonLearn\guiml\demo\a.jpg')    
+#       newDetect.detectedImage()
+#       cv2.imshow( "Display window", newDetect.showImageWithHighlight(i))
+#       cv2.waitKey(3000)
+#       cv2.destroyAllWindows()

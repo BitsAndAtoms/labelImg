@@ -113,7 +113,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.itemsToShapes = {}
         self.shapesToItems = {}
         self.prevLabelText = ''
-
+        self.current_count = 0
         listLayout = QVBoxLayout()
         listLayout.setContentsMargins(0, 0, 0, 0)
 
@@ -180,7 +180,8 @@ class MainWindow(QMainWindow, WindowMixin):
 
         # detect objects
         self.detectedImages = None
-
+        self.fname =None
+        
         scroll = QScrollArea()
         scroll.setWidget(self.canvas)
         scroll.setWidgetResizable(True)
@@ -998,7 +999,7 @@ class MainWindow(QMainWindow, WindowMixin):
         if filePath is None:
             filePath = self.settings.get(SETTING_FILENAME)
 
-        # Make sure that filePath is a regular python string, rather than QString
+        # Make sure that filePafth is a regular python string, rather than QString
         filePath = ustr(filePath)
 
         unicodeFilePath = ustr(filePath)
@@ -1034,9 +1035,11 @@ class MainWindow(QMainWindow, WindowMixin):
             image = QImage.fromData(self.imageData)
             if newCanvas == self.canvas:
                  image = self.detectedImages.detectedImage()
+                 image = self.detectedImages.showImageWithHighlight(self.current_count)
+                 
             else:
                  self.detectedImages.detectedImage() 
-                 image = self.detectedImages.returnSingleObject(10)
+                 image = self.detectedImages.returnSingleObject(self.current_count)
             if image.isNull():
                 self.errorMessage(u'Error opening file',
                                   u"<p>Make sure <i>%s</i> is a valid image file." % unicodeFilePath)
@@ -1256,6 +1259,9 @@ class MainWindow(QMainWindow, WindowMixin):
 
     def openPrevImg(self, _value=False):
         # Proceding prev image without dialog if having any label
+        self.current_count += 1
+        self.loadFile(self.fname,self.canvas)
+        self.loadFile(self.fname,self.canvas2)
         if self.autoSaving.isChecked():
             if self.defaultSaveDir is not None:
                 if self.dirty is True:
@@ -1316,6 +1322,7 @@ class MainWindow(QMainWindow, WindowMixin):
         if filename:
             if isinstance(filename, (tuple, list)):
                 filename = filename[0]
+                self.fname = filename
             self.detectedImages = Detect(filename)
             self.loadFile(filename,self.canvas)
           #  pdb.set_trace()
