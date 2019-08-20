@@ -174,9 +174,9 @@ class MainWindow(QMainWindow, WindowMixin):
         self.canvas.setDrawingShapeToSquare(settings.get(SETTING_DRAW_SQUARE, False))
 
 
-        self.canvas2 = Canvas(parent=self)
-        self.canvas2.zoomRequest.connect(self.zoomRequest)
-        self.canvas2.setDrawingShapeToSquare(settings.get(SETTING_DRAW_SQUARE, False))
+        #self.canvas2 = Canvas(parent=self)
+        #self.canvas2.zoomRequest.connect(self.zoomRequest)
+        #self.canvas2.setDrawingShapeToSquare(settings.get(SETTING_DRAW_SQUARE, False))
 
         # detect objects
         self.detectedImages = None
@@ -192,13 +192,15 @@ class MainWindow(QMainWindow, WindowMixin):
         self.scrollArea = scroll
         self.canvas.scrollRequest.connect(self.scrollRequest)
 
-        scroll2 = QScrollArea()
-        scroll2.setWidget(self.canvas2)
-        scroll2.setWidgetResizable(True)
-        self.scrollBars = {
-            Qt.Vertical: scroll.verticalScrollBar(),
-            Qt.Horizontal: scroll.horizontalScrollBar()
-        }
+# =============================================================================
+#         scroll2 = QScrollArea()
+#         scroll2.setWidget(self.canvas2)
+#         scroll2.setWidgetResizable(True)
+#         self.scrollBars = {
+#             Qt.Vertical: scroll.verticalScrollBar(),
+#             Qt.Horizontal: scroll.horizontalScrollBar()
+#         }
+# =============================================================================
         self.scrollArea = scroll
         self.canvas.scrollRequest.connect(self.scrollRequest)
 
@@ -207,17 +209,17 @@ class MainWindow(QMainWindow, WindowMixin):
         self.canvas.selectionChanged.connect(self.shapeSelectionChanged)
         self.canvas.drawingPolygon.connect(self.toggleDrawingSensitive)
         #pdb.set_trace()
-        vbox = QVBoxLayout()
+        #vbox = QVBoxLayout()
         textbrowser = QTextBrowser()
         lineedit = QLineEdit()
         btn = QPushButton("QUIT")
-        central_widget = QWidget()
-        central_widget.setLayout(vbox)
+        #central_widget = QWidget()
+        #central_widget.setLayout(vbox)
         
-        vbox.addWidget(scroll)
-        vbox.addWidget(scroll2)
-        self.setCentralWidget(central_widget)
-        #self.setCentralWidget(scroll)
+        #vbox.addWidget(scroll)
+        #vbox.addWidget(scroll2)
+        #self.setCentralWidget(central_widget)
+        self.setCentralWidget(scroll)
         
         self.addDockWidget(Qt.RightDockWidgetArea, self.dock)
         self.addDockWidget(Qt.RightDockWidgetArea, self.filedock)
@@ -598,14 +600,14 @@ class MainWindow(QMainWindow, WindowMixin):
     def status(self, message, delay=5000):
         self.statusBar().showMessage(message, delay)
 
-    def resetState(self,newCanvas):
+    def resetState(self):
         self.itemsToShapes.clear()
         self.shapesToItems.clear()
         self.labelList.clear()
         self.filePath = None
         self.imageData = None
         self.labelFile = None
-        newCanvas.resetState()
+        self.canvas.resetState()
         self.labelCoordinates.clear()
 
     def currentItem(self):
@@ -989,13 +991,11 @@ class MainWindow(QMainWindow, WindowMixin):
         for item, shape in self.itemsToShapes.items():
             item.setCheckState(Qt.Checked if value else Qt.Unchecked)
 
-    def loadFile(self, filePath=None,newCanvas=None):
+    def loadFile(self, filePath=None):
         """Load the specified file, or the last opened file if None."""
-        if newCanvas is None:
-           newCanvas = self.canvas
         
-        self.resetState(newCanvas)
-        newCanvas.setEnabled(False)
+        self.resetState()
+        self.canvas.setEnabled(False)
         if filePath is None:
             filePath = self.settings.get(SETTING_FILENAME)
 
@@ -1024,22 +1024,24 @@ class MainWindow(QMainWindow, WindowMixin):
                 self.imageData = self.labelFile.imageData
                 self.lineColor = QColor(*self.labelFile.lineColor)
                 self.fillColor = QColor(*self.labelFile.fillColor)
-                newCanvas.verified = self.labelFile.verified
+                self.canvas.verified = self.labelFile.verified
             else:
                 # Load image:
                 # read data first and store for saving into label file.
                 self.imageData = read(unicodeFilePath, None)
                 self.labelFile = None
-                newCanvas.verified = False
+                self.canvas.verified = False
             
-            image = QImage.fromData(self.imageData)
-            if newCanvas == self.canvas:
-                 image = self.detectedImages.detectedImage()
-                 image = self.detectedImages.showImageWithHighlight(self.current_count)
+            #image = QImage.fromData(self.imageData)
+            
+            self.detectedImages.detectedImage()
+            image = self.detectedImages.showImageWithHighlight(self.current_count)
                  
-            else:
-                 self.detectedImages.detectedImage() 
-                 image = self.detectedImages.returnSingleObject(self.current_count)
+# =============================================================================
+#             else:
+#                  self.detectedImages.detectedImage() 
+#                  image = self.detectedImages.returnSingleObject(self.current_count)
+# =============================================================================
             if image.isNull():
                 self.errorMessage(u'Error opening file',
                                   u"<p>Make sure <i>%s</i> is a valid image file." % unicodeFilePath)
@@ -1048,13 +1050,13 @@ class MainWindow(QMainWindow, WindowMixin):
             self.status("Loaded %s" % os.path.basename(unicodeFilePath))
             self.image = image
             self.filePath = unicodeFilePath
-            newCanvas.loadPixmap(QPixmap.fromImage(image))
+            self.canvas.loadPixmap(QPixmap.fromImage(image))
             if self.labelFile:
                 self.loadLabels(self.labelFile.shapes)
             self.setClean()
-            newCanvas.setEnabled(True)
+            self.canvas.setEnabled(True)
             self.adjustScale(initial=True)
-            self.paintCanvas(newCanvas)
+            self.paintCanvas()
             self.addRecentFile(self.filePath)
             self.toggleActions(True)
 
@@ -1089,7 +1091,7 @@ class MainWindow(QMainWindow, WindowMixin):
                 self.labelList.setCurrentItem(self.labelList.item(self.labelList.count()-1))
                 self.labelList.item(self.labelList.count()-1).setSelected(True)
 
-            newCanvas.setFocus(True)
+            self.canvas.setFocus(True)
             return True
         return False
 
@@ -1099,12 +1101,12 @@ class MainWindow(QMainWindow, WindowMixin):
             self.adjustScale()
         super(MainWindow, self).resizeEvent(event)
 
-    def paintCanvas(self,newCanvas):
-        if type(newCanvas) is Canvas:
+    def paintCanvas(self):
+        if type(self.canvas) is Canvas:
          assert not self.image.isNull(), "cannot paint null image"
-         newCanvas.scale = 0.01 * self.zoomWidget.value()
-         newCanvas.adjustSize()
-         newCanvas.update()
+         self.canvas.scale = 0.01 * self.zoomWidget.value()
+         self.canvas.adjustSize()
+         self.canvas.update()
 
     def adjustScale(self, initial=False):
         value = self.scalers[self.FIT_WINDOW if initial else self.zoomMode]()
@@ -1260,8 +1262,8 @@ class MainWindow(QMainWindow, WindowMixin):
     def openPrevImg(self, _value=False):
         # Proceding prev image without dialog if having any label
         self.current_count += 1
-        self.loadFile(self.fname,self.canvas)
-        self.loadFile(self.fname,self.canvas2)
+        self.loadFile(self.fname)
+        #self.loadFile(self.fname,self.canvas2)
         if self.autoSaving.isChecked():
             if self.defaultSaveDir is not None:
                 if self.dirty is True:
@@ -1324,9 +1326,9 @@ class MainWindow(QMainWindow, WindowMixin):
                 filename = filename[0]
                 self.fname = filename
             self.detectedImages = Detect(filename)
-            self.loadFile(filename,self.canvas)
+            self.loadFile(filename)
           #  pdb.set_trace()
-            self.loadFile(filename,self.canvas2)
+          # self.loadFile(filename,self.canvas2)
 
     def saveFile(self, _value=False):
         if self.defaultSaveDir is not None and len(ustr(self.defaultSaveDir)):

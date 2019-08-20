@@ -5,7 +5,7 @@ import numpy as np
 import pdb
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from PIL import Image
+#from PIL import Image
 from skimage import data
 from skimage.filters import threshold_otsu
 from skimage.segmentation import clear_border
