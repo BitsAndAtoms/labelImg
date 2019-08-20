@@ -11,7 +11,7 @@ import gui_python_hook
 import pdb
 from functools import partial
 from collections import defaultdict
-
+import cv2
 try:
     from PyQt5.QtGui import *
     from PyQt5.QtCore import *
@@ -38,6 +38,7 @@ from libs.canvas import Canvas
 from libs.zoomWidget import ZoomWidget
 from libs.labelDialog import LabelDialog
 from libs.sliderBar import SliderBar
+from libs.movie import Movie
 from libs.colorDialog import ColorDialog
 from libs.labelFile import LabelFile, LabelFileError
 from libs.toolBar import ToolBar
@@ -112,7 +113,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.labelDialog = LabelDialog(parent=self, listItem=self.labelHist)
         
         # slider
-        self.sliderBar = SliderBar(parent=self)
+        self.sliderBar = SliderBar(parent=self,Minimum = 0, Maximum = 40)
         self.dockSlider = QDockWidget("slider bar", self)
         self.dockSlider.setObjectName("bar")
         self.dockSlider.setWidget(self.sliderBar)
@@ -177,7 +178,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.colorDialog = ColorDialog(parent=self)
 
         self.canvas = Canvas(parent=self)
-        
+        self.movie = None
         self.canvas.zoomRequest.connect(self.zoomRequest)
         self.canvas.setDrawingShapeToSquare(settings.get(SETTING_DRAW_SQUARE, False))
 
@@ -1042,7 +1043,7 @@ class MainWindow(QMainWindow, WindowMixin):
             
             #image = QImage.fromData(self.imageData)
             
-            self.detectedImages.detectedImage()
+            self.detectedImages.detectedImage(self.movie)
             image = self.detectedImages.showImageWithHighlight(self.current_count)
                  
 # =============================================================================
@@ -1326,14 +1327,16 @@ class MainWindow(QMainWindow, WindowMixin):
         if not self.mayContinue():
             return
         path = os.path.dirname(ustr(self.filePath)) if self.filePath else '.'
-        formats = ['*.%s' % fmt.data().decode("ascii").lower() for fmt in QImageReader.supportedImageFormats()]
-        filters = "Image & Label files (%s)" % ' '.join(formats + ['*%s' % LabelFile.suffix])
-        filename = QFileDialog.getOpenFileName(self, '%s - Choose Image or Label file' % __appname__, path, filters)
+        #formats = ['*.%s' % fmt.data().decode("ascii").lower() for fmt in cv2.VideoCapture.supportedImageFormats()]
+        #filters = "Image & Label files (%s)" % ' '.join(formats + ['*%s' % LabelFile.suffix])
+        filename = QFileDialog.getOpenFileName(self, '%s - Choose Image or Label file' % __appname__, path)
         if filename:
             if isinstance(filename, (tuple, list)):
                 filename = filename[0]
                 self.fname = filename
             self.detectedImages = Detect(filename)
+            self.movie = Movie(filename)
+            removeAndAddWidget(self)
             self.loadFile(filename)
           #  pdb.set_trace()
           # self.loadFile(filename,self.canvas2)
@@ -1525,6 +1528,17 @@ def get_main_app(argv=[]):
                      argv[3] if len(argv) >= 4 else None)
     win.show()
     return app, win
+
+def removeAndAddWidget(self):
+    self.dockSlider.setWidget(None)
+    self.sliderBar = SliderBar(parent=self,Minimum = 0, Maximum = self.movie.returnMovieFinalFrame())
+    #self.sliderBar.setMovie(self.movie)
+    #self.sliderBar.setDetect(self.detectedImages)
+    self.dockSlider.setWidget(self.sliderBar)
+    self.dockSlider = QDockWidget("slider bar", self)
+    #self.dockSlider.setObjectName("bar")
+    
+    
 
 
 def main():

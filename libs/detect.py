@@ -16,6 +16,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 from skimage import morphology
 from PIL import Image
+from libs.movie import Movie
 plt.tight_layout()
 plt.show()
 try:
@@ -34,8 +35,8 @@ class Detect():
         self.thresIm = None;
         self.objectCollection = []
         
-    def detectedImage(self):
-         self.img = cv2.imread(self.filename)  
+    def detectedImage(self,movie):
+         self.img = movie.returnImageBasedOnSlider()
          M, N, channel = self.img.shape
          
          U, V = np.meshgrid(np.arange(0, N, 1), np.arange(0, M, 1))
