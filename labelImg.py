@@ -47,7 +47,7 @@ from libs.yolo_io import TXT_EXT
 from libs.ustr import ustr
 from libs.version import __version__
 from libs.hashableQListWidgetItem import HashableQListWidgetItem
-
+from libs.detect import Detect
 __appname__ = 'labelImg'
 
 class WindowMixin(object):
@@ -169,6 +169,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.colorDialog = ColorDialog(parent=self)
 
         self.canvas = Canvas(parent=self)
+        
         self.canvas.zoomRequest.connect(self.zoomRequest)
         self.canvas.setDrawingShapeToSquare(settings.get(SETTING_DRAW_SQUARE, False))
 
@@ -177,6 +178,8 @@ class MainWindow(QMainWindow, WindowMixin):
         self.canvas2.zoomRequest.connect(self.zoomRequest)
         self.canvas2.setDrawingShapeToSquare(settings.get(SETTING_DRAW_SQUARE, False))
 
+        # detect objects
+        self.detectedImages = None
 
         scroll = QScrollArea()
         scroll.setWidget(self.canvas)
@@ -594,14 +597,14 @@ class MainWindow(QMainWindow, WindowMixin):
     def status(self, message, delay=5000):
         self.statusBar().showMessage(message, delay)
 
-    def resetState(self):
+    def resetState(self,newCanvas):
         self.itemsToShapes.clear()
         self.shapesToItems.clear()
         self.labelList.clear()
         self.filePath = None
         self.imageData = None
         self.labelFile = None
-        self.canvas.resetState()
+        newCanvas.resetState()
         self.labelCoordinates.clear()
 
     def currentItem(self):
@@ -990,7 +993,7 @@ class MainWindow(QMainWindow, WindowMixin):
         if newCanvas is None:
            newCanvas = self.canvas
         
-        self.resetState()
+        self.resetState(newCanvas)
         newCanvas.setEnabled(False)
         if filePath is None:
             filePath = self.settings.get(SETTING_FILENAME)
@@ -1027,8 +1030,13 @@ class MainWindow(QMainWindow, WindowMixin):
                 self.imageData = read(unicodeFilePath, None)
                 self.labelFile = None
                 newCanvas.verified = False
-
+            
             image = QImage.fromData(self.imageData)
+            if newCanvas == self.canvas:
+                 image = self.detectedImages.detectedImage()
+            else:
+                 self.detectedImages.detectedImage() 
+                 image = self.detectedImages.returnSingleObject(10)
             if image.isNull():
                 self.errorMessage(u'Error opening file',
                                   u"<p>Make sure <i>%s</i> is a valid image file." % unicodeFilePath)
@@ -1047,6 +1055,7 @@ class MainWindow(QMainWindow, WindowMixin):
             self.addRecentFile(self.filePath)
             self.toggleActions(True)
 
+          
             # Label xml file and show bound box according to its filename
             # if self.usingPascalVocFormat is True:
             if self.defaultSaveDir is not None:
@@ -1307,7 +1316,10 @@ class MainWindow(QMainWindow, WindowMixin):
         if filename:
             if isinstance(filename, (tuple, list)):
                 filename = filename[0]
-            self.loadFile(filename)
+            self.detectedImages = Detect(filename)
+            self.loadFile(filename,self.canvas)
+          #  pdb.set_trace()
+            self.loadFile(filename,self.canvas2)
 
     def saveFile(self, _value=False):
         if self.defaultSaveDir is not None and len(ustr(self.defaultSaveDir)):
