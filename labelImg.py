@@ -37,6 +37,7 @@ from libs.stringBundle import StringBundle
 from libs.canvas import Canvas
 from libs.zoomWidget import ZoomWidget
 from libs.labelDialog import LabelDialog
+from libs.sliderBar import SliderBar
 from libs.colorDialog import ColorDialog
 from libs.labelFile import LabelFile, LabelFileError
 from libs.toolBar import ToolBar
@@ -109,6 +110,13 @@ class MainWindow(QMainWindow, WindowMixin):
 
         # Main widgets and related state.
         self.labelDialog = LabelDialog(parent=self, listItem=self.labelHist)
+        
+        # slider
+        self.sliderBar = SliderBar(parent=self)
+        self.dockSlider = QDockWidget("slider bar", self)
+        self.dockSlider.setObjectName("bar")
+        self.dockSlider.setWidget(self.sliderBar)
+        #self.setBottomWidget()
 
         self.itemsToShapes = {}
         self.shapesToItems = {}
@@ -220,7 +228,7 @@ class MainWindow(QMainWindow, WindowMixin):
         #vbox.addWidget(scroll2)
         #self.setCentralWidget(central_widget)
         self.setCentralWidget(scroll)
-        
+        self.addDockWidget(Qt.BottomDockWidgetArea, self.dockSlider)
         self.addDockWidget(Qt.RightDockWidgetArea, self.dock)
         self.addDockWidget(Qt.RightDockWidgetArea, self.filedock)
         self.filedock.setFeatures(QDockWidget.DockWidgetFloatable)
