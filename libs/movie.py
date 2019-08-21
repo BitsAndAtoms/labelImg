@@ -65,11 +65,13 @@ class Movie():
         
         
     def showImageWithHighlight(self,index):
-        
         threshImCrop = cv2.rectangle(self.threshIm , (self.objectCollection[index][0], self.objectCollection[index][1]), (self.objectCollection[index][0]+self.objectCollection[index][2]-1 , self.objectCollection[index][1]+self.objectCollection[index][3]-1), (255,0,0), 3)
         #return threshImCrop
         return QImage(threshImCrop.data, threshImCrop.shape[1], threshImCrop.shape[0], 3*threshImCrop.shape[1], QImage.Format_RGB888)
     
     def setCurrentImageNum(self,value):
         self.currentImageNum = value
+        
+    def getCurrentImageNum(self):
+        return self.currentImageNum
         

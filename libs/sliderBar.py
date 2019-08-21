@@ -31,14 +31,9 @@ class SliderBar(QWidget):
       self.movie = None
       self.detect = None
       
-   def setMovie(self,movie):
-      self.movie = movie
+
       
    def value_changed(self):
-       
        self.parent().parent().movie.setCurrentImageNum(self.sl.value())
-       self.parent().parent().detectedImages.detectedImage(self.parent().parent().movie)
+       #self.parent().parent().detectedImages.detectedImagePlainHighlight(self.parent().parent().movie)
        self.parent().parent().loadFile( self.parent().parent().fname)
-       
-   def setDetect(self,detect):
-       self.detect = movie

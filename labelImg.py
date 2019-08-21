@@ -50,6 +50,7 @@ from libs.ustr import ustr
 from libs.version import __version__
 from libs.hashableQListWidgetItem import HashableQListWidgetItem
 from libs.detect import Detect
+from libs.result import Result
 __appname__ = 'labelImg'
 
 class WindowMixin(object):
@@ -113,7 +114,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.labelDialog = LabelDialog(parent=self, listItem=self.labelHist)
         
         # slider
-        self.sliderBar = SliderBar(parent=self,Minimum = 0, Maximum = 40)
+        self.sliderBar = SliderBar(parent=self,Minimum = 0, Maximum = 20)
         self.dockSlider = QDockWidget("slider bar", self)
         self.dockSlider.setObjectName("bar")
         self.dockSlider.setWidget(self.sliderBar)
@@ -177,19 +178,17 @@ class MainWindow(QMainWindow, WindowMixin):
         self.zoomWidget = ZoomWidget()
         self.colorDialog = ColorDialog(parent=self)
 
+        #center image
         self.canvas = Canvas(parent=self)
-        self.movie = None
         self.canvas.zoomRequest.connect(self.zoomRequest)
         self.canvas.setDrawingShapeToSquare(settings.get(SETTING_DRAW_SQUARE, False))
-
-
-        #self.canvas2 = Canvas(parent=self)
-        #self.canvas2.zoomRequest.connect(self.zoomRequest)
-        #self.canvas2.setDrawingShapeToSquare(settings.get(SETTING_DRAW_SQUARE, False))
-
+        
         # detect objects
-        self.detectedImages = None
+        # variable used throughout
         self.fname =None
+        self.movie = None
+        self.detectedImages = None
+        self.result = None
         
         scroll = QScrollArea()
         scroll.setWidget(self.canvas)
@@ -201,15 +200,6 @@ class MainWindow(QMainWindow, WindowMixin):
         self.scrollArea = scroll
         self.canvas.scrollRequest.connect(self.scrollRequest)
 
-# =============================================================================
-#         scroll2 = QScrollArea()
-#         scroll2.setWidget(self.canvas2)
-#         scroll2.setWidgetResizable(True)
-#         self.scrollBars = {
-#             Qt.Vertical: scroll.verticalScrollBar(),
-#             Qt.Horizontal: scroll.horizontalScrollBar()
-#         }
-# =============================================================================
         self.scrollArea = scroll
         self.canvas.scrollRequest.connect(self.scrollRequest)
 
@@ -217,17 +207,11 @@ class MainWindow(QMainWindow, WindowMixin):
         self.canvas.shapeMoved.connect(self.setDirty)
         self.canvas.selectionChanged.connect(self.shapeSelectionChanged)
         self.canvas.drawingPolygon.connect(self.toggleDrawingSensitive)
-        #pdb.set_trace()
-        #vbox = QVBoxLayout()
+        
         textbrowser = QTextBrowser()
         lineedit = QLineEdit()
         btn = QPushButton("QUIT")
-        #central_widget = QWidget()
-        #central_widget.setLayout(vbox)
         
-        #vbox.addWidget(scroll)
-        #vbox.addWidget(scroll2)
-        #self.setCentralWidget(central_widget)
         self.setCentralWidget(scroll)
         self.addDockWidget(Qt.BottomDockWidgetArea, self.dockSlider)
         self.addDockWidget(Qt.RightDockWidgetArea, self.dock)
@@ -1002,7 +986,6 @@ class MainWindow(QMainWindow, WindowMixin):
 
     def loadFile(self, filePath=None):
         """Load the specified file, or the last opened file if None."""
-        
         self.resetState()
         self.canvas.setEnabled(False)
         if filePath is None:
@@ -1043,9 +1026,14 @@ class MainWindow(QMainWindow, WindowMixin):
             
             #image = QImage.fromData(self.imageData)
             
-            self.detectedImages.detectedImage(self.movie)
+            #self.detectedImages.detectedImage(self.movie)
+            self.detectedImages.detectedImagePlainHighlight(self.movie,self.result)
             image = self.detectedImages.showImageWithHighlight(self.current_count)
-                 
+            
+            
+            if(len(self.result.getFrameWiseResult()) != 0):
+                if self.result.getFrameWiseResult()[self.movie.getCurrentImageNum()]  is None:
+                   self.result.initalizeResultInSingleFrame(self.movie.getCurrentImageNum(),self.detectedImages.getLengthOfObjectCollection())
 # =============================================================================
 #             else:
 #                  self.detectedImages.detectedImage() 
@@ -1271,6 +1259,8 @@ class MainWindow(QMainWindow, WindowMixin):
     def openPrevImg(self, _value=False):
         # Proceding prev image without dialog if having any label
         self.current_count += 1
+       
+            
         self.loadFile(self.fname)
         #self.loadFile(self.fname,self.canvas2)
         if self.autoSaving.isChecked():
@@ -1298,31 +1288,35 @@ class MainWindow(QMainWindow, WindowMixin):
 
     def openNextImg(self, _value=False):
         # Proceding prev image without dialog if having any label
-        if self.autoSaving.isChecked():
-            if self.defaultSaveDir is not None:
-                if self.dirty is True:
-                    self.saveFile()
-            else:
-                self.changeSavedirDialog()
-                return
-
-        if not self.mayContinue():
-            return
-
-        if len(self.mImgList) <= 0:
-            return
-
-        filename = None
-        if self.filePath is None:
-            filename = self.mImgList[0]
-        else:
-            currIndex = self.mImgList.index(self.filePath)
-            if currIndex + 1 < len(self.mImgList):
-                filename = self.mImgList[currIndex + 1]
-
-        if filename:
-            self.loadFile(filename)
-
+        
+        self.result.setUnsetWorm(self.movie.getCurrentImageNum(),self.current_count)
+# =============================================================================
+#         if self.autoSaving.isChecked():
+#             if self.defaultSaveDir is not None:
+#                 if self.dirty is True:
+#                     self.saveFile()
+#             else:
+#                 self.changeSavedirDialog()
+#                 return
+# 
+#         if not self.mayContinue():
+#             return
+# 
+#         if len(self.mImgList) <= 0:
+#             return
+# 
+#         filename = None
+#         if self.filePath is None:
+#             filename = self.mImgList[0]
+#         else:
+#             currIndex = self.mImgList.index(self.filePath)
+#             if currIndex + 1 < len(self.mImgList):
+#                 filename = self.mImgList[currIndex + 1]
+# 
+#         if filename:
+#             self.loadFile(filename)
+# 
+# =============================================================================
     def openFile(self, _value=False):
         if not self.mayContinue():
             return
@@ -1336,7 +1330,10 @@ class MainWindow(QMainWindow, WindowMixin):
                 self.fname = filename
             self.detectedImages = Detect(filename)
             self.movie = Movie(filename)
+            self.result =Result()
             removeAndAddWidget(self)
+            
+            self.result.intializeFrameWiseResult(self.movie)
             self.loadFile(filename)
           #  pdb.set_trace()
           # self.loadFile(filename,self.canvas2)
@@ -1531,12 +1528,10 @@ def get_main_app(argv=[]):
 
 def removeAndAddWidget(self):
     self.dockSlider.setWidget(None)
-    self.sliderBar = SliderBar(parent=self,Minimum = 0, Maximum = self.movie.returnMovieFinalFrame())
-    #self.sliderBar.setMovie(self.movie)
-    #self.sliderBar.setDetect(self.detectedImages)
+    self.sliderBar = SliderBar(parent=self,Minimum = 0, Maximum = self.movie.returnMovieFinalFrame()-1)
     self.dockSlider.setWidget(self.sliderBar)
     self.dockSlider = QDockWidget("slider bar", self)
-    #self.dockSlider.setObjectName("bar")
+
     
     
 
