@@ -1,4 +1,4 @@
-
+import pdb
 try:
     from PyQt5.QtGui import *
     from PyQt5.QtCore import *
@@ -209,7 +209,7 @@ class Canvas(QWidget):
 
     def mousePressEvent(self, ev):
         pos = self.transformPos(ev.pos())
-
+        #pdb.set_trace()
         if ev.button() == Qt.LeftButton:
             if self.drawing():
                 self.handleDrawing(pos)

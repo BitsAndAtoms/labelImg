@@ -111,7 +111,7 @@ class Detect():
             cv2.THRESH_BINARY,int(np.min(2*np.floor(np.divide(H.shape,16))+1)),-12)
          nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(th2, connectivity=8)
          sizes = stats[1:, -1]; nb_components = nb_components - 1
-         min_size = 40  
+         min_size = 10  
          max_size = 500
          img2 = np.zeros((output.shape))
          self.imgPlain = self.img
@@ -132,7 +132,7 @@ class Detect():
                     self.imgPlain = cv2.rectangle(self.imgPlain , (stats[i+1, cv2.CC_STAT_LEFT], stats[i+1, cv2.CC_STAT_TOP]), (stats[i+1, cv2.CC_STAT_LEFT]+stats[i+1, cv2.CC_STAT_WIDTH]-1 , stats[i+1, cv2.CC_STAT_TOP]+stats[i+1, cv2.CC_STAT_HEIGHT]-1), (255,255,0), 1)      
                
                elif currentFrameObjects[count] == 1:
-                    self.imgPlain = cv2.rectangle(self.imgPlain , (stats[i+1, cv2.CC_STAT_LEFT], stats[i+1, cv2.CC_STAT_TOP]), (stats[i+1, cv2.CC_STAT_LEFT]+stats[i+1, cv2.CC_STAT_WIDTH]-1 , stats[i+1, cv2.CC_STAT_TOP]+stats[i+1, cv2.CC_STAT_HEIGHT]-1), (255,255,255), 1)      
+                    self.imgPlain = cv2.rectangle(self.imgPlain , (stats[i+1, cv2.CC_STAT_LEFT], stats[i+1, cv2.CC_STAT_TOP]), (stats[i+1, cv2.CC_STAT_LEFT]+stats[i+1, cv2.CC_STAT_WIDTH]-1 , stats[i+1, cv2.CC_STAT_TOP]+stats[i+1, cv2.CC_STAT_HEIGHT]-1), (0,0,255), 1)      
                 
                elif currentFrameObjects[count] == 0:
                     self.imgPlain = cv2.rectangle(self.imgPlain , (stats[i+1, cv2.CC_STAT_LEFT], stats[i+1, cv2.CC_STAT_TOP]), (stats[i+1, cv2.CC_STAT_LEFT]+stats[i+1, cv2.CC_STAT_WIDTH]-1 , stats[i+1, cv2.CC_STAT_TOP]+stats[i+1, cv2.CC_STAT_HEIGHT]-1), (0,0,0), 1) 
@@ -158,6 +158,10 @@ class Detect():
 
     def getLengthOfObjectCollection(self):
         return len(self.objectCollection)
+    
+    
+    def getObjectCollection(self):
+        return (self.objectCollection)
 #imgFile = cv2.imread(r"C:\Users\Sid\Desktop\pythonLearn\guiml\demo\demo.jpg")
 
 #cv2.imshow('dst_rt', imgFile)
