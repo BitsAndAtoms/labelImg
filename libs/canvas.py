@@ -210,6 +210,8 @@ class Canvas(QWidget):
     def mousePressEvent(self, ev):
         pos = self.transformPos(ev.pos())
         #pdb.set_trace()
+        self.parent().parent().parent().result.setUnsetWorm(self.parent().parent().parent().movie.getCurrentImageNum(),self.parent().parent().parent().current_count)
+
         if ev.button() == Qt.LeftButton:
             if self.drawing():
                 self.handleDrawing(pos)
