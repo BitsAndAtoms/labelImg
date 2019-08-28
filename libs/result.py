@@ -38,11 +38,13 @@ class Result():
  
     def __init__(self):
         self.resultCollection = []
+        self.manualCollection = []
         
 
         
     def intializeFrameWiseResult(self,movie):
          self.resultCollection = [None]*(movie.returnMovieFinalFrame())
+         self.manualCollection =  [[] for _ in range(movie.returnMovieFinalFrame())]
          
 
     def getFrameWiseResult(self ):
@@ -62,3 +64,11 @@ class Result():
               
     def findIfClassified(self,value,index):
             return self.resultCollection[value][index] 
+        
+    def addNewShape(self,currentImageNum,shape,nameOfAnnotation):
+           self.manualCollection[currentImageNum].append([nameOfAnnotation,shape])
+           
+           
+    def getManualCollection(self,currentImageNum):
+        return self.manualCollection[currentImageNum]
+          

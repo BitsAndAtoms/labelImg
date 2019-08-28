@@ -1,6 +1,7 @@
 # importing OpenCV(cv2) module 
 
 import cv2 
+import math
 import os
 import numpy as np
 import pdb
@@ -139,7 +140,27 @@ class Detect():
                     self.imgPlain = cv2.rectangle(self.imgPlain , (stats[i+1, cv2.CC_STAT_LEFT], stats[i+1, cv2.CC_STAT_TOP]), (stats[i+1, cv2.CC_STAT_LEFT]+stats[i+1, cv2.CC_STAT_WIDTH]-1 , stats[i+1, cv2.CC_STAT_TOP]+stats[i+1, cv2.CC_STAT_HEIGHT]-1), (0,0,0), 1) 
                count += 1     
        
-        
+         manualAnnotationList = result.getManualCollection(movie.getCurrentImageNum())
+         if not manualAnnotationList is None:
+             for elementList in manualAnnotationList:
+                 shape =elementList[1]
+                 xmin =None
+                 ymin=None
+                 xmax=None
+                 ymax=None
+                 for rectAnn in shape.points:
+                     if xmin is None:
+                         xmin = math.ceil(rectAnn.x()) 
+                         ymin = math.ceil(rectAnn.y())
+                         xmax = math.floor(rectAnn.x())
+                         ymax = math.floor(rectAnn.y())
+                     else:
+                         xmin = min(xmin,math.ceil(rectAnn.x()) )
+                         ymin = min(ymin,math.ceil(rectAnn.y()))
+                         xmax = max(xmax,math.floor(rectAnn.x()))
+                         ymax = max(ymax, math.floor(rectAnn.y()))
+                 self.imgPlain = cv2.rectangle(self.imgPlain , (xmin, ymin), (xmax,ymax), (0,255,0), 1)      
+
          return self.imgPlain
 
     def returnSingleObject(self,index):               
@@ -185,7 +206,29 @@ class Detect():
         newImCrop = self.img[self.objectCollection[objectIndex][1]:self.objectCollection[objectIndex][1]+self.objectCollection[objectIndex][3]-1, self.objectCollection[objectIndex][0]:self.objectCollection[objectIndex][0]+self.objectCollection[objectIndex][2]-1,:]
         saveName = classification+"_ImNum_"+str(currentImageNum)+"_ObjID_" + str(objectIndex) + "_FilName_"+os.path.basename(self.filename).split('.')[0]+".png"
         cv2.imwrite(os.path.join(os.path.dirname(self.filename), saveName),newImCrop)
-       
+        
+        
+        
+    def saveSnipFromShape(self,currentImageNum,shape,classification,movie):
+        xmin =None
+        ymin=None
+        xmax=None
+        ymax=None
+        for i in shape.points:
+            if xmin is None:
+                xmin = math.ceil(i.x()) 
+                ymin = math.ceil(i.y())
+                xmax = math.floor(i.x())
+                ymax = math.floor(i.y())
+            else:
+                xmin = min(xmin,math.ceil(i.x()) )
+                ymin = min(ymin,math.ceil(i.y()))
+                xmax = max(xmax,math.floor(i.x()))
+                ymax = max(ymax, math.floor(i.y()))
+        
+        newImCrop = movie.returnImageBasedOnSlider()[ymin:ymax, xmin:xmax,:]
+        saveName = classification+"_ImNum_"+str(currentImageNum) + "_FilName_"+os.path.basename(self.filename).split('.')[0]+".png"
+        cv2.imwrite(os.path.join(os.path.dirname(self.filename), saveName),newImCrop)    
 #imgFile = cv2.imread(r"C:\Users\Sid\Desktop\pythonLearn\guiml\demo\demo.jpg")
 
 #cv2.imshow('dst_rt', imgFile)

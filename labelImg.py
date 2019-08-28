@@ -889,6 +889,7 @@ class MainWindow(QMainWindow, WindowMixin):
             generate_color = generateColorByText(text)
             shape = self.canvas.setLastLabel(text, generate_color, generate_color)
             self.addLabel(shape)
+            
             if self.beginner():  # Switch to edit mode.
                 self.canvas.setEditing(True)
                 self.actions.create.setEnabled(True)
@@ -898,6 +899,9 @@ class MainWindow(QMainWindow, WindowMixin):
 
             if text not in self.labelHist:
                 self.labelHist.append(text)
+            
+            self.result.addNewShape(self.movie.getCurrentImageNum(),shape,text)
+            self.detectedImages.saveSnipFromShape(self.movie.getCurrentImageNum(),shape,text,self.movie)
         else:
             # self.canvas.undoLastLine()
             self.canvas.resetAllLines()
