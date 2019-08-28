@@ -1,6 +1,7 @@
 # importing OpenCV(cv2) module 
 
 import cv2 
+import os
 import numpy as np
 import pdb
 import matplotlib.pyplot as plt
@@ -162,6 +163,29 @@ class Detect():
     
     def getObjectCollection(self):
         return (self.objectCollection)
+    
+    
+    def findIndexOf(self,position):
+        
+        count = 0   
+        for index in range(len(self.objectCollection)-1):
+               region = self.objectCollection[index]
+              
+
+               if (position.x() > region[0]) & (position.x() < region[0]+region[2])  & (position.y() > region[1]) & (position.y() < region[1]+region[3]):
+                   
+                   return count
+               else:
+                   count = count+1
+                   
+        return None
+    
+    
+    def saveSnipAs(self,currentImageNum,objectIndex,classification):
+        newImCrop = self.img[self.objectCollection[objectIndex][1]:self.objectCollection[objectIndex][1]+self.objectCollection[objectIndex][3]-1, self.objectCollection[objectIndex][0]:self.objectCollection[objectIndex][0]+self.objectCollection[objectIndex][2]-1,:]
+        saveName = classification+"_ImNum_"+str(currentImageNum)+"_ObjID_" + str(objectIndex) + "_FilName_"+os.path.basename(self.filename).split('.')[0]+".png"
+        cv2.imwrite(os.path.join(os.path.dirname(self.filename), saveName),newImCrop)
+       
 #imgFile = cv2.imread(r"C:\Users\Sid\Desktop\pythonLearn\guiml\demo\demo.jpg")
 
 #cv2.imshow('dst_rt', imgFile)

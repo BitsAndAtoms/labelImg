@@ -206,12 +206,28 @@ class Canvas(QWidget):
                 self.update()
             self.hVertex, self.hShape = None, None
             self.overrideCursor(CURSOR_DEFAULT)
+       
+
 
     def mousePressEvent(self, ev):
+        
         pos = self.transformPos(ev.pos())
         #pdb.set_trace()
-        self.parent().parent().parent().result.setUnsetWorm(self.parent().parent().parent().movie.getCurrentImageNum(),self.parent().parent().parent().current_count)
-
+        objectIndex = self.parent().parent().parent().detectedImages.findIndexOf(pos)
+        if not objectIndex is None:
+            if ev.button() == Qt.LeftButton:
+                self.parent().parent().parent().result.setUnsetWorm(self.parent().parent().parent().movie.getCurrentImageNum(),objectIndex)
+            elif ev.button() == Qt.RightButton:
+                 classifiedAs = self.parent().parent().parent().result.findIfClassified(self.parent().parent().parent().movie.getCurrentImageNum(),objectIndex)
+                 if classifiedAs is None:   
+                     return
+                 elif classifiedAs == 1:
+                      self.parent().parent().parent().detectedImages.saveSnipAs(self.parent().parent().parent().movie.getCurrentImageNum(),objectIndex,"worm")
+                 elif classifiedAs == 0:
+                       self.parent().parent().parent().detectedImages.saveSnipAs(self.parent().parent().parent().movie.getCurrentImageNum(),objectIndex,"notWorm")
+                   
+          
+        
         if ev.button() == Qt.LeftButton:
             if self.drawing():
                 self.handleDrawing(pos)

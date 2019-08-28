@@ -60,4 +60,5 @@ class Result():
             elif self.resultCollection[value][index] == 0:
              self.resultCollection[value][index] = None
               
-           
+    def findIfClassified(self,value,index):
+            return self.resultCollection[value][index] 

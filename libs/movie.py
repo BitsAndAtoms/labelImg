@@ -74,4 +74,5 @@ class Movie():
         
     def getCurrentImageNum(self):
         return self.currentImageNum
+
         
