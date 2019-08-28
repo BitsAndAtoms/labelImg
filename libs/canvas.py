@@ -219,6 +219,13 @@ class Canvas(QWidget):
                 self.parent().parent().parent().result.setUnsetWorm(self.parent().parent().parent().movie.getCurrentImageNum(),objectIndex)
             elif ev.button() == Qt.RightButton:
                  classifiedAs = self.parent().parent().parent().result.findIfClassified(self.parent().parent().parent().movie.getCurrentImageNum(),objectIndex)
+                 
+                 returnVal = self.parent().parent().parent().detectedImages.returnSingleObject(objectIndex,self.parent().parent().parent().movie)
+                
+                 
+                 pixmap = QPixmap.fromImage(returnVal).scaled(100, 100, Qt.KeepAspectRatio, Qt.FastTransformation)
+                 self.parent().parent().parent().canvas2.loadPixmap(pixmap)
+                 
                  if classifiedAs is None:   
                      return
                  elif classifiedAs == 1:

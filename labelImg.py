@@ -168,12 +168,9 @@ class MainWindow(QMainWindow, WindowMixin):
         self.fileListWidget.itemDoubleClicked.connect(self.fileitemDoubleClicked)
         filelistLayout = QVBoxLayout()
         filelistLayout.setContentsMargins(0, 0, 0, 0)
-        filelistLayout.addWidget(self.fileListWidget)
-        fileListContainer = QWidget()
-        fileListContainer.setLayout(filelistLayout)
-        self.filedock = QDockWidget(getStr('fileList'), self)
-        self.filedock.setObjectName(getStr('files'))
-        self.filedock.setWidget(fileListContainer)
+        #filelistLayout.addWidget(self.fileListWidget)
+        
+        #self.filedock.setWidget(fileListContainer)
 
         self.zoomWidget = ZoomWidget()
         self.colorDialog = ColorDialog(parent=self)
@@ -207,6 +204,29 @@ class MainWindow(QMainWindow, WindowMixin):
         self.canvas.shapeMoved.connect(self.setDirty)
         self.canvas.selectionChanged.connect(self.shapeSelectionChanged)
         self.canvas.drawingPolygon.connect(self.toggleDrawingSensitive)
+        
+        # zoomed image of object
+        self.canvas2 = Canvas(parent=self)
+        self.canvas2.setDrawingShapeToSquare(settings.get(SETTING_DRAW_SQUARE, False))
+        
+        scroll2 = QScrollArea()
+        scroll2.setWidget(self.canvas2)
+        scroll2.setWidgetResizable(True)
+        self.scrollBars = {
+            Qt.Vertical: scroll.verticalScrollBar(),
+            Qt.Horizontal: scroll.horizontalScrollBar()
+        }
+        
+        self.canvas2.scrollRequest.connect(self.scrollRequest)
+        fileListContainer = QWidget()
+        fileListContainer.setLayout(filelistLayout)
+        filelistLayout.addWidget(scroll2)
+        self.filedock = QDockWidget(getStr('fileList'), self)
+        self.filedock.setObjectName(getStr('files'))
+        self.filedock.setWidget(fileListContainer)
+        
+        
+        
         
         textbrowser = QTextBrowser()
         lineedit = QLineEdit()
@@ -1051,6 +1071,7 @@ class MainWindow(QMainWindow, WindowMixin):
             self.status("Loaded %s" % os.path.basename(unicodeFilePath))
             self.image = image
             self.filePath = unicodeFilePath
+           
             self.canvas.loadPixmap(QPixmap.fromImage(image))
             if self.labelFile:
                 self.loadLabels(self.labelFile.shapes)

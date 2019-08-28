@@ -163,10 +163,10 @@ class Detect():
 
          return self.imgPlain
 
-    def returnSingleObject(self,index):               
-        boundedImg = self.img[self.objectCollection[index][1]:self.objectCollection[index][1]+self.objectCollection[index][3] , self.objectCollection[index][0]:self.objectCollection[index][0]+self.objectCollection[index][2], :]        
+    def returnSingleObject(self,index,movie):               
+        boundedImg = movie.returnImageBasedOnSlider()[self.objectCollection[index][1]:self.objectCollection[index][1]+self.objectCollection[index][3] , self.objectCollection[index][0]:self.objectCollection[index][0]+self.objectCollection[index][2], :]        
         color_img2 = cv2.cvtColor(boundedImg, cv2.COLOR_BGR2RGB)   
-        print(len(self.objectCollection))
+        
         return QImage( color_img2.data, boundedImg.shape[1], boundedImg.shape[0], 3*boundedImg.shape[1], QImage.Format_RGB888)
         #return boundedImg
         
