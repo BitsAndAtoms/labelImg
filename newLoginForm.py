@@ -8,7 +8,9 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+import os 
+from subprocess import Popen
+import labelImg
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -23,7 +25,13 @@ class Ui_MainWindow(object):
 "           border-color: black;\n"
 "           padding: 4px; \n"
 "         \n"
-"        }")
+"        }\n"
+"\n"
+"QPushButton:hover\n"
+"{\n"
+"        background-color: yellow;\n"
+"}\n"
+"")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.nameLabel = QtWidgets.QLabel(self.centralwidget)
@@ -90,7 +98,19 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         self.dateEdit.setDate(QtCore.QDate.currentDate())
         self.timeEdit.setTime(QtCore.QTime.currentTime())
+        app.aboutToQuit.connect(self.closeEvent)
+        self.pushButton.clicked.connect(self.closeEvent)
+
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+
+    def closeEvent(self):
+        print("wow") 
+        Popen('python labelImg.py',shell=True)
+        import sys
+        sys.exit(0)
+
+
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate

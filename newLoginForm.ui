@@ -23,7 +23,13 @@
            border-color: black;
            padding: 4px; 
          
-        }</string>
+        }
+
+QPushButton:hover
+{
+        background-color: yellow;
+}
+</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="nameLabel">
