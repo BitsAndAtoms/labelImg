@@ -94,18 +94,23 @@ class Ui_MainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-
-        self.retranslateUi(MainWindow)
+        
+        # added value setters
         self.dateEdit.setDate(QtCore.QDate.currentDate())
         self.timeEdit.setTime(QtCore.QTime.currentTime())
+         
+        # function calls
+        self.retranslateUi(MainWindow)
         app.aboutToQuit.connect(self.closeEvent)
         self.pushButton.clicked.connect(self.closeEvent)
-
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
 
     def closeEvent(self):
-        print("wow") 
+        print("wow")
+        text_file = open(QtCore.QDateTime.currentDateTime().toString("yyyyMMdd_h_m_s"), "w")
+        text_file.write(self.textEdit.toPlainText())
+        text_file.close()
         Popen('python labelImg.py',shell=True)
         import sys
         sys.exit(0)
