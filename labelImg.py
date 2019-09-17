@@ -119,6 +119,17 @@ class MainWindow(QMainWindow, WindowMixin):
         self.dockSlider.setObjectName("bar")
         self.dockSlider.setWidget(self.sliderBar)
         #self.setBottomWidget()
+        
+        
+         # create slider for mini object
+        self.sliderBarMini = SliderBar(parent=self,Minimum = 0, Maximum = 20)
+        self.dockSliderMini = QDockWidget("slider bar", self)
+        self.dockSliderMini.setObjectName("bar")
+        self.dockSliderMini.setWidget(self.sliderBar)
+        
+        
+        
+        
 
         self.itemsToShapes = {}
         self.shapesToItems = {}
@@ -221,6 +232,10 @@ class MainWindow(QMainWindow, WindowMixin):
         fileListContainer = QWidget()
         fileListContainer.setLayout(filelistLayout)
         filelistLayout.addWidget(scroll2)
+       # filelistLayout.addWidget(self.dockSliderMini)
+        
+        
+        
         self.filedock = QDockWidget(getStr('fileList'), self)
         self.filedock.setObjectName(getStr('files'))
         self.filedock.setWidget(fileListContainer)
