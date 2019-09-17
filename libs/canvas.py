@@ -214,6 +214,8 @@ class Canvas(QWidget):
         pos = self.transformPos(ev.pos())
         #pdb.set_trace()
         objectIndex = self.parent().parent().parent().detectedImages.findIndexOf(pos)
+        self.parent().parent().parent().movie.currentObjectIndex = objectIndex
+        
         if not objectIndex is None:
             if ev.button() == Qt.LeftButton:
                 self.parent().parent().parent().result.setUnsetWorm(self.parent().parent().parent().movie.getCurrentImageNum(),objectIndex)
@@ -246,6 +248,8 @@ class Canvas(QWidget):
             self.selectShapePoint(pos)
             self.prevPoint = pos
             self.repaint()
+            
+     
 
     def mouseReleaseEvent(self, ev):
         if ev.button() == Qt.RightButton:

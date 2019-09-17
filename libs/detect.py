@@ -170,7 +170,12 @@ class Detect():
         return QImage( color_img2.data, boundedImg.shape[1], boundedImg.shape[0], 3*boundedImg.shape[1], QImage.Format_RGB888)
         #return boundedImg
         
-        
+    def returnSingleObjectMini(self,index,movie):
+        boundedImg = movie.returnImageBasedOnMiniSlider(index)[self.objectCollection[movie.currentObjectIndex][1]:self.objectCollection[movie.currentObjectIndex][1]+self.objectCollection[movie.currentObjectIndex][3] , self.objectCollection[movie.currentObjectIndex][0]:self.objectCollection[movie.currentObjectIndex][0]+self.objectCollection[movie.currentObjectIndex][2], :]        
+        color_img2 = cv2.cvtColor(boundedImg, cv2.COLOR_BGR2RGB)   
+        print("tat")
+        return QImage( color_img2.data, boundedImg.shape[1], boundedImg.shape[0], 3*boundedImg.shape[1], QImage.Format_RGB888)
+    
     def showImageWithHighlight(self,index):
  
         threshImCrop = cv2.rectangle(self.imgPlain , (self.objectCollection[index][0], self.objectCollection[index][1]), (self.objectCollection[index][0]+self.objectCollection[index][2]-1 , self.objectCollection[index][1]+self.objectCollection[index][3]-1), (255,0,0), 1)

@@ -34,6 +34,14 @@ class SliderBar(QWidget):
 
       
    def value_changed(self):
-       self.parent().parent().movie.setCurrentImageNum(self.sl.value())
-       #self.parent().parent().detectedImages.detectedImagePlainHighlight(self.parent().parent().movie)
-       self.parent().parent().loadFile( self.parent().parent().fname)
+      
+       try:
+        self.parent().parent().movie.setCurrentImageNum(self.sl.value())
+        #self.parent().parent().detectedImages.detectedImagePlainHighlight(self.parent().parent().movie)
+        self.parent().parent().loadFile( self.parent().parent().fname)
+       except:
+        
+        returnVal = self.parent().parent().parent().parent().detectedImages.returnSingleObjectMini(self.sl.value(),self.parent().parent().parent().parent().movie) 
+        pixmap = QPixmap.fromImage(returnVal).scaled(100, 100, Qt.KeepAspectRatio, Qt.FastTransformation)
+        self.parent().parent().parent().parent().canvas2.loadPixmap(pixmap)
+         

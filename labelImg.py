@@ -207,7 +207,6 @@ class MainWindow(QMainWindow, WindowMixin):
         }
         self.scrollArea = scroll
         self.canvas.scrollRequest.connect(self.scrollRequest)
-
         self.scrollArea = scroll
         self.canvas.scrollRequest.connect(self.scrollRequest)
 
@@ -231,8 +230,15 @@ class MainWindow(QMainWindow, WindowMixin):
         self.canvas2.scrollRequest.connect(self.scrollRequest)
         fileListContainer = QWidget()
         fileListContainer.setLayout(filelistLayout)
+        
+        
+       
+        
+        
+        
+        
         filelistLayout.addWidget(scroll2)
-       # filelistLayout.addWidget(self.dockSliderMini)
+        filelistLayout.addWidget(self.dockSliderMini)
         
         
         
@@ -1571,6 +1577,10 @@ def removeAndAddWidget(self):
     self.sliderBar = SliderBar(parent=self,Minimum = 0, Maximum = self.movie.returnMovieFinalFrame()-1)
     self.dockSlider.setWidget(self.sliderBar)
     self.dockSlider = QDockWidget("slider bar", self)
+    self.dockSliderMini.setWidget(None)
+    self.sliderBarMini = SliderBar(parent=self,Minimum = 0, Maximum = self.movie.returnMovieFinalFrame()-1)
+    self.dockSliderMini.setWidget(self.sliderBarMini)
+    self.dockSliderMini = QDockWidget("slider bar", self)
 
     
     

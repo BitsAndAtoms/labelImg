@@ -41,7 +41,14 @@ class Movie():
         self.totalFrames = int(self.vid.get(cv2.CAP_PROP_FRAME_COUNT))
         self.fps = self.vid.get(cv2.CAP_PROP_FPS)
         self.currentImageNum = 0;
-       
+        self.currentObjectIndex = None;
+    
+    
+    def returnImageBasedOnMiniSlider(self,index):
+        self.vid.set(cv2.CAP_PROP_POS_FRAMES,index)
+        ret, frame = self.vid.read()
+        return frame
+    
     def returnImageBasedOnSlider(self):
          self.vid.set(cv2.CAP_PROP_POS_FRAMES,self.currentImageNum)
          ret, frame = self.vid.read()
