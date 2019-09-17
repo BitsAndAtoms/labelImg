@@ -24,17 +24,24 @@ class SliderBar(QWidget):
       self.sl.setTickPosition(QSlider.TicksBelow)
       self.sl.setTickInterval(5)
       layout.addWidget(self.sl)
-      self.sl.valueChanged.connect(self.l1.display)
+      #self.sl.valueChanged.connect(self.l1.display)
       self.sl.valueChanged.connect(self.value_changed)
+      self.sl.sliderPressed.connect(self.slider_Disconnect)
+      self.sl.sliderReleased.connect(self.slider_Reconnect)
       self.setLayout(layout)
       self.setWindowTitle("SpinBox demo")
       self.movie = None
       self.detect = None
       
+   def slider_Disconnect(self):
+     self.sender().valueChanged.disconnect()
 
+   def slider_Reconnect(self):
+     self.sender().valueChanged.connect(self.value_changed)
+     self.sender().valueChanged.emit(self.sender().value())
       
    def value_changed(self):
-      
+       self.l1.display(self.sl.value())
        try:
         self.parent().parent().movie.setCurrentImageNum(self.sl.value())
         #self.parent().parent().detectedImages.detectedImagePlainHighlight(self.parent().parent().movie)
