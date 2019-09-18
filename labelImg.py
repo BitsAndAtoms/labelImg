@@ -78,7 +78,7 @@ class MainWindow(QMainWindow, WindowMixin):
     def __init__(self, defaultFilename=None, defaultPrefdefClassFile=None, defaultSaveDir=None):
         super(MainWindow, self).__init__()
         self.setWindowTitle(__appname__)
-
+        
         # Load setting in the main thread
         self.settings = Settings()
         self.settings.load()
@@ -128,7 +128,9 @@ class MainWindow(QMainWindow, WindowMixin):
         self.dockSliderMini.setWidget(self.sliderBar)
         
         
-        
+        self.userName = None
+        self.userDate = None
+        self.userTime =None
         
 
         self.itemsToShapes = {}
@@ -1204,6 +1206,8 @@ class MainWindow(QMainWindow, WindowMixin):
         settings[SETTING_PAINT_LABEL] = self.displayLabelOption.isChecked()
         settings[SETTING_DRAW_SQUARE] = self.drawSquaresOption.isChecked()
         settings.save()
+        print(self.userDate)
+        sys.exit(0)
 
     def loadRecent(self, filename):
         if self.mayContinue():

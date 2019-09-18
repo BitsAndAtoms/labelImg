@@ -12,6 +12,7 @@ import os
 from subprocess import Popen
 import labelImg
 import sys
+import pdb
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -108,12 +109,22 @@ class Ui_MainWindow(object):
 
 
     def closeEvent(self):
-        
         #Popen('python labelImg.py',shell=True)
         import sys
         sys.exit(0)
 
     def submitButton(self):
+        
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Warning)
+        msg.setText("Would you like to delete theme <b>"+"</b> ?")
+        msg.setWindowTitle("Delete Theme Confirmation")
+        msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+
+        retval = msg.exec_()
+        if retval == QtWidgets.QMessageBox.Yes:
+         sys.exit(0)
+            
         text_file = open(QtCore.QDateTime.currentDateTime().toString("yyyyMMdd_h_m_s"), "w")
         text_file.write(self.lineEdit.text())
         text_file.write(os.linesep)
@@ -123,6 +134,9 @@ class Ui_MainWindow(object):
         self.dialog =  labelImg.MainWindow(None,os.path.join(
                          os.path.dirname('python labelImg.py'),
                          'data', 'predefined_classes.txt'),None)
+        self.dialog.userName = self.lineEdit.text()
+        self.dialog.userDate = self.dateEdit.date().toString("yyyyMMdd")
+        self.dialog.userTime = self.timeEdit.time().toString("h_m_s")
         self.dialog.show()
 
     def retranslateUi(self, MainWindow):
@@ -135,6 +149,10 @@ class Ui_MainWindow(object):
         self.pushButton.setText(_translate("MainWindow", "Submit"))
 
 
+       
+            
+            
+            
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
