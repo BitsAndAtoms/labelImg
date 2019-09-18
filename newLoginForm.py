@@ -109,34 +109,41 @@ class Ui_MainWindow(object):
 
 
     def closeEvent(self):
-        #Popen('python labelImg.py',shell=True)
-        import sys
         sys.exit(0)
 
     def submitButton(self):
         
-        msg = QtWidgets.QMessageBox()
-        msg.setIcon(QtWidgets.QMessageBox.Warning)
-        msg.setText("Would you like to delete theme <b>"+"</b> ?")
-        msg.setWindowTitle("Delete Theme Confirmation")
-        msg.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-
-        retval = msg.exec_()
-        if retval == QtWidgets.QMessageBox.Yes:
-         sys.exit(0)
-            
-        text_file = open(QtCore.QDateTime.currentDateTime().toString("yyyyMMdd_h_m_s"), "w")
-        text_file.write(self.lineEdit.text())
-        text_file.write(os.linesep)
-        text_file.write(self.textEdit.toPlainText())
-        text_file.close()
+        
+        if self.lineEdit.text().isspace() or not self.lineEdit.text():
+         msg = QtWidgets.QMessageBox()
+         msg.setIcon(QtWidgets.QMessageBox.Warning)
+         msg.setText("Please enter a valid user name")
+         msg.setWindowTitle("Warning: Invalid input")
+         msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+         retval = msg.exec_()
+         return
+        
+        if self.textEdit.toPlainText().isspace() or not self.textEdit.toPlainText() or len(self.textEdit.toPlainText())< 20:
+         msg = QtWidgets.QMessageBox()
+         msg.setIcon(QtWidgets.QMessageBox.Warning)
+         msg.setText("Please enter at least 20 characters in comment")
+         msg.setWindowTitle("Warning: Invalid input")
+         msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+         retval = msg.exec_()
+         return
         
         self.dialog =  labelImg.MainWindow(None,os.path.join(
                          os.path.dirname('python labelImg.py'),
                          'data', 'predefined_classes.txt'),None)
+        
         self.dialog.userName = self.lineEdit.text()
         self.dialog.userDate = self.dateEdit.date().toString("yyyyMMdd")
         self.dialog.userTime = self.timeEdit.time().toString("h_m_s")
+        text_file = open(self.dateEdit.date().toString("yyyyMMdd")+"_"+self.timeEdit.time().toString("h_m_s")+"_"+self.lineEdit.text(), "w")
+        text_file.write(self.lineEdit.text())
+        text_file.write(os.linesep)
+        text_file.write(self.textEdit.toPlainText())
+        text_file.close()
         self.dialog.show()
 
     def retranslateUi(self, MainWindow):
@@ -148,11 +155,7 @@ class Ui_MainWindow(object):
         self.commentLabel.setText(_translate("MainWindow", "Comment"))
         self.pushButton.setText(_translate("MainWindow", "Submit"))
 
-
-       
-            
-            
-            
+    
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
