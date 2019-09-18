@@ -49,6 +49,6 @@ class SliderBar(QWidget):
        except:
         
         returnVal = self.parent().parent().parent().parent().detectedImages.returnSingleObjectMini(self.sl.value(),self.parent().parent().parent().parent().movie) 
-        pixmap = QPixmap.fromImage(returnVal).scaled(100, 100, Qt.KeepAspectRatio, Qt.FastTransformation)
+        pixmap = QPixmap.fromImage(returnVal).scaled(self.parent().parent().parent().parent().canvas2.height()-10, self.parent().parent().parent().parent().canvas2.width()-10, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.parent().parent().parent().parent().canvas2.loadPixmap(pixmap)
          

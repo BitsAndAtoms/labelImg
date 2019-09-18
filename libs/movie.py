@@ -42,17 +42,23 @@ class Movie():
         self.fps = self.vid.get(cv2.CAP_PROP_FPS)
         self.currentImageNum = 0;
         self.currentObjectIndex = None;
+        self.oldImageNum = -1;
+        self.oldFrame = None;
     
     
     def returnImageBasedOnMiniSlider(self,index):
-        self.vid.set(cv2.CAP_PROP_POS_FRAMES,index)
-        ret, frame = self.vid.read()
-        return frame
+            self.vid.set(cv2.CAP_PROP_POS_FRAMES,index)
+            ret, frame = self.vid.read()
+            return frame
     
     def returnImageBasedOnSlider(self):
-         self.vid.set(cv2.CAP_PROP_POS_FRAMES,self.currentImageNum)
-         ret, frame = self.vid.read()
-         return frame
+         if self.oldImageNum == self.currentImageNum:
+            return self.oldFrame
+         else:
+            self.vid.set(cv2.CAP_PROP_POS_FRAMES,self.currentImageNum)
+            ret, frame = self.vid.read()
+            self.oldFrame = frame
+            return self.oldFrame
          #return QImage(self.img.data, N, M, bytesPerLine, QImage.Format_RGB888)
         # return QImage.fromData(self.img.data)    
      #return QImage(img2.data, N, M, bytesPerLine,QImage.Format_Grayscale8)
@@ -68,14 +74,15 @@ class Movie():
         return QImage( color_img2.data, boundedImg.shape[1], boundedImg.shape[0], 3*boundedImg.shape[1], QImage.Format_RGB888)
         #return boundedImg
         
-        
-    def showImageWithHighlight(self,index):
-        threshImCrop = cv2.rectangle(self.threshIm , (self.objectCollection[index][0], self.objectCollection[index][1]), (self.objectCollection[index][0]+self.objectCollection[index][2]-1 , self.objectCollection[index][1]+self.objectCollection[index][3]-1), (255,0,0), 3)
-        #return threshImCrop
-        return QImage(threshImCrop.data, threshImCrop.shape[1], threshImCrop.shape[0], 3*threshImCrop.shape[1], QImage.Format_RGB888)
+#        
+#    def showImageWithHighlight(self,index):
+#        threshImCrop = cv2.rectangle(self.threshIm , (self.objectCollection[index][0], self.objectCollection[index][1]), (self.objectCollection[index][0]+self.objectCollection[index][2]-1 , self.objectCollection[index][1]+self.objectCollection[index][3]-1), (255,0,0), 3)
+#        #return threshImCrop
+#        return QImage(threshImCrop.data, threshImCrop.shape[1], threshImCrop.shape[0], 3*threshImCrop.shape[1], QImage.Format_RGB888)
     
     def setCurrentImageNum(self,value):
         self.currentImageNum = value
+        
         
     def getCurrentImageNum(self):
         return self.currentImageNum

@@ -37,6 +37,10 @@ class Detect():
         self.thresIm = None;
         self.objectCollection = []
         self.imgPlain =None
+        self.oldImageNum = -1
+        self.nb_components = None
+        self.stats = None
+        self.output = None
         
     def detectedImage(self,movie):
          self.objectCollection = []
@@ -91,7 +95,10 @@ class Detect():
 
 
     def detectedImagePlainHighlight(self,movie,result):
-         currentFrameObjects = result.getFrameWiseResult()[movie.getCurrentImageNum()]
+        currentFrameObjects = result.getFrameWiseResult()[movie.getCurrentImageNum()]
+        if self.oldImageNum != movie.getCurrentImageNum():
+        
+         self.oldImageNum = movie.getCurrentImageNum()
          self.objectCollection = []
          self.img = movie.returnImageBasedOnSlider()
          M, N, channel = self.img.shape
@@ -112,21 +119,33 @@ class Detect():
          th2 = cv2.adaptiveThreshold(currentSnippedImage,1,cv2.ADAPTIVE_THRESH_MEAN_C,\
             cv2.THRESH_BINARY,int(np.min(2*np.floor(np.divide(H.shape,16))+1)),-12)
          nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(th2, connectivity=8)
-         sizes = stats[1:, -1]; nb_components = nb_components - 1
-         min_size = 10  
-         max_size = 500
+         self.output = output
          img2 = np.zeros((output.shape))
          self.imgPlain = self.img
-         count = 0
-         for i in range(0, nb_components):
+         
+         
+         self.nb_components = nb_components
+         self.stats = stats
+        
+                  
+
+        min_size = 10  
+        max_size = 500 
+        nb_components = self.nb_components
+        stats = self.stats 
+        sizes = stats[1:, -1]; nb_components = nb_components - 1
+        output = self.output
+        count = 0
+        img2 = np.zeros((output.shape))
+        for i in range(0, nb_components):
             if max_size >= sizes[i] >= min_size :
                img2[output == i + 1] = 255
                self.objectCollection.append(np.array([stats[i+1, cv2.CC_STAT_LEFT],
                         stats[i+1, cv2.CC_STAT_TOP], 
                         stats[i+1, cv2.CC_STAT_WIDTH], 
                         stats[i+1, cv2.CC_STAT_HEIGHT]]))
-               print(str(currentFrameObjects))
-               print(i)
+               
+               
                
                if currentFrameObjects is None:
                     self.imgPlain = cv2.rectangle(self.imgPlain , (stats[i+1, cv2.CC_STAT_LEFT], stats[i+1, cv2.CC_STAT_TOP]), (stats[i+1, cv2.CC_STAT_LEFT]+stats[i+1, cv2.CC_STAT_WIDTH]-1 , stats[i+1, cv2.CC_STAT_TOP]+stats[i+1, cv2.CC_STAT_HEIGHT]-1), (255,255,0), 1)  
@@ -140,8 +159,8 @@ class Detect():
                     self.imgPlain = cv2.rectangle(self.imgPlain , (stats[i+1, cv2.CC_STAT_LEFT], stats[i+1, cv2.CC_STAT_TOP]), (stats[i+1, cv2.CC_STAT_LEFT]+stats[i+1, cv2.CC_STAT_WIDTH]-1 , stats[i+1, cv2.CC_STAT_TOP]+stats[i+1, cv2.CC_STAT_HEIGHT]-1), (0,0,0), 1) 
                count += 1     
        
-         manualAnnotationList = result.getManualCollection(movie.getCurrentImageNum())
-         if not manualAnnotationList is None:
+        manualAnnotationList = result.getManualCollection(movie.getCurrentImageNum())
+        if not manualAnnotationList is None:
              for elementList in manualAnnotationList:
                  shape =elementList[1]
                  xmin =None
@@ -161,7 +180,7 @@ class Detect():
                          ymax = max(ymax, math.floor(rectAnn.y()))
                  self.imgPlain = cv2.rectangle(self.imgPlain , (xmin, ymin), (xmax,ymax), (0,255,0), 1)      
 
-         return self.imgPlain
+        return self.imgPlain
 
     def returnSingleObject(self,index,movie):               
         boundedImg = movie.returnImageBasedOnSlider()[self.objectCollection[index][1]:self.objectCollection[index][1]+self.objectCollection[index][3] , self.objectCollection[index][0]:self.objectCollection[index][0]+self.objectCollection[index][2], :]        

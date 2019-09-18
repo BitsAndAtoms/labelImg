@@ -273,9 +273,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
        
 
-        changeSavedir = action(getStr('changeSaveDir'), self.changeSavedirDialog,
-                               'Ctrl+r', 'open', getStr('changeSavedAnnotationDir'))
-
+        
        
         openNextImg = action(getStr('nextImg'), self.openNextImg,
                              'd', 'next', getStr('nextImgDetail'))
@@ -430,7 +428,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.displayLabelOption.triggered.connect(self.togglePaintLabelsOption)
 
         addActions(self.menus.file,
-                   (open, changeSavedir, self.menus.recentFiles,  saveAs, close, resetAll, quit))
+                   (open, self.menus.recentFiles,  saveAs, close, resetAll, quit))
         addActions(self.menus.help, (help, showInfo))
         addActions(self.menus.view, (
             self.autoSaving,
@@ -451,11 +449,11 @@ class MainWindow(QMainWindow, WindowMixin):
 
         self.tools = self.toolbar('Tools')
         self.actions.beginner = (
-            open, changeSavedir, openNextImg, openPrevImg,  None, create, delete, None,
+            open, openNextImg, openPrevImg,  None, create, delete, None,
             zoomIn, zoom, zoomOut, fitWindow, fitWidth)
 
         self.actions.advanced = (
-            open, changeSavedir, openNextImg, openPrevImg, None,
+            open, openNextImg, openPrevImg, None,
             createMode, editMode, None,
             hideAll, showAll)
 
@@ -1141,22 +1139,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
 
 
-    def changeSavedirDialog(self, _value=False):
-        if self.defaultSaveDir is not None:
-            path = ustr(self.defaultSaveDir)
-        else:
-            path = '.'
 
-        dirpath = ustr(QFileDialog.getExistingDirectory(self,
-                                                       '%s - Save annotations to the directory' % __appname__, path,  QFileDialog.ShowDirsOnly
-                                                       | QFileDialog.DontResolveSymlinks))
-
-        if dirpath is not None and len(dirpath) > 1:
-            self.defaultSaveDir = dirpath
-
-        self.statusBar().showMessage('%s . Annotation will be saved to %s' %
-                                     ('Change saved folder', self.defaultSaveDir))
-        self.statusBar().show()
 
    
    
@@ -1166,62 +1149,14 @@ class MainWindow(QMainWindow, WindowMixin):
     def openPrevImg(self, _value=False):
         # Proceding prev image without dialog if having any label
         self.current_count += 1
-       
-            
         self.loadFile(self.fname)
-        #self.loadFile(self.fname,self.canvas2)
-        if self.autoSaving.isChecked():
-            if self.defaultSaveDir is not None:
-                if self.dirty is True:
-                    self.saveFile()
-            else:
-                self.changeSavedirDialog()
-                return
-
-        if not self.mayContinue():
-            return
-
-        if len(self.mImgList) <= 0:
-            return
-
-        if self.filePath is None:
-            return
-
-        currIndex = self.mImgList.index(self.filePath)
-        if currIndex - 1 >= 0:
-            filename = self.mImgList[currIndex - 1]
-            if filename:
-                self.loadFile(filename)
+        
 
     def openNextImg(self, _value=False):
         # Proceding prev image without dialog if having any label
         
         self.result.setUnsetWorm(self.movie.getCurrentImageNum(),self.current_count)
-# =============================================================================
-#         if self.autoSaving.isChecked():
-#             if self.defaultSaveDir is not None:
-#                 if self.dirty is True:
-#                     self.saveFile()
-#             else:
-#                 self.changeSavedirDialog()
-#                 return
-# 
-#         if not self.mayContinue():
-#             return
-# 
-#         if len(self.mImgList) <= 0:
-#             return
-# 
-#         filename = None
-#         if self.filePath is None:
-#             filename = self.mImgList[0]
-#         else:
-#             currIndex = self.mImgList.index(self.filePath)
-#             if currIndex + 1 < len(self.mImgList):
-#                 filename = self.mImgList[currIndex + 1]
-# 
-#         if filename:
-#             self.loadFile(filename)
+
 # 
 # =============================================================================
     def openFile(self, _value=False):
