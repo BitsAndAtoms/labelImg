@@ -11,6 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import os 
 from subprocess import Popen
 import labelImg
+import sys
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -102,20 +103,27 @@ class Ui_MainWindow(object):
         # function calls
         self.retranslateUi(MainWindow)
         app.aboutToQuit.connect(self.closeEvent)
-        self.pushButton.clicked.connect(self.closeEvent)
+        self.pushButton.clicked.connect(self.submitButton)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
 
     def closeEvent(self):
-        print("wow")
-        text_file = open(QtCore.QDateTime.currentDateTime().toString("yyyyMMdd_h_m_s"), "w")
-        text_file.write(self.textEdit.toPlainText())
-        text_file.close()
-        Popen('python labelImg.py',shell=True)
+        
+        #Popen('python labelImg.py',shell=True)
         import sys
         sys.exit(0)
 
-
+    def submitButton(self):
+        text_file = open(QtCore.QDateTime.currentDateTime().toString("yyyyMMdd_h_m_s"), "w")
+        text_file.write(self.lineEdit.text())
+        text_file.write(os.linesep)
+        text_file.write(self.textEdit.toPlainText())
+        text_file.close()
+        
+        self.dialog =  labelImg.MainWindow(None,os.path.join(
+                         os.path.dirname('python labelImg.py'),
+                         'data', 'predefined_classes.txt'),None)
+        self.dialog.show()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
