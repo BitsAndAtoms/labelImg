@@ -10,7 +10,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import os 
 from subprocess import Popen
-import labelImg
+
 import sys
 import pdb
 
@@ -131,8 +131,8 @@ class Ui_MainWindow(object):
          msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
          retval = msg.exec_()
          return
-        
-        self.dialog =  labelImg.MainWindow(None,os.path.join(
+        from labelImg import MainWindow
+        self.dialog =  MainWindow(None,os.path.join(
                          os.path.dirname('python labelImg.py'),
                          'data', 'predefined_classes.txt'),None)
         
@@ -159,8 +159,8 @@ class Ui_MainWindow(object):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
+    MainWindow1 = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    ui.setupUi(MainWindow1)
+    MainWindow1.show()
     sys.exit(app.exec_())
